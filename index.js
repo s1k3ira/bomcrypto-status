@@ -1,15 +1,42 @@
-const express = require('express');
-const app = express();
-app.get("/", (request, response) => {
-  const ping = new Date();
-  ping.setHours(ping.getHours() - 3);
-  console.log(`Ping recebido às ${ping.getUTCHours()}:${ping.getUTCMinutes()}:${ping.getUTCSeconds()}`);
-  response.sendStatus(200);
+const cron = require('node-cron');
+// Require the necessary discord.js classes
+const request = require('request');
+const { Client, Intents, ClientUser } = require('discord.js');
+const { token } = require('./config.json');
+
+
+cron.schedule('* * * * *', function() {
+
+  request('https://api.bombcrypto.io/ccu', { json: true }, (err, res, body) => {
+    if (err) { return console.log(err); }
+    console.log(body.message.ccu);
+    if (body.message.ccu == 7509){
+        // Create a new client instance
+      const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+
+      // When the client is ready, run this code (only once)
+      client.on('ready', () => {
+          client.user.setStatus('dnd');
+          client.user.setActivity('OFFLINE', { type: 'PLAYING' });
+          console.log('OFFLINE!');
+      });
+      // Login to Discord with your client's token
+      client.login(token);
+
+    } else {
+
+          // Create a new client instance
+      const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+
+      // When the client is ready, run this code (only once)
+      client.on('ready', () => {
+          client.user.setStatus('avaible');
+          client.user.setActivity('ONLINE', { type: 'PLAYING' });
+          console.log('ONLINE!');
+      });
+      // Login to Discord with your client's token
+      client.login(token);
+    }
+  });
+
 });
-app.listen(process.env.PORT); // Recebe solicitações que o deixa online
-
-const Discord = require("discord.js"); //Conexão com a livraria Discord.js
-const client = new Discord.Client(); //Criação de um novo Client
-const config = require("./config.json"); //Pegando o prefixo do bot para respostas de comandos
-
-client.login(OTIwNDk5MjA5MTM0ODIxMzg3.YblPsQ.KT7wTA4rnaLRp8rkCaWzowzkB5g); //Ligando o Bot caso ele consiga acessar o token
